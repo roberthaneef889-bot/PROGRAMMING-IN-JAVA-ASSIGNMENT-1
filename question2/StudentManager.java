@@ -30,24 +30,19 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-/**
- * Program 2: Student Records Manager.
- * Swing window + event handling (ActionListener, WindowAdapter),
- * Vector/Enumeration/Stack, Random, Date/GregorianCalendar,
- * character and byte streams, StringTokenizer and a Scanner console search.
- */
+
 public class StudentManager extends JFrame implements ActionListener {
 
     private static final long serialVersionUID = 1L;
     private static final String TEXT_FILE = "students.txt";
     private static final String BACKUP_FILE = "students.bak";
 
-    // ---- data structures ----
-    private final Vector<StudentRecord> records = new Vector<>();   // all records
-    private final Stack<StudentRecord> undoStack = new Stack<>();   // for Undo
-    private final Random random = new Random();                      // for unique IDs
+    
+    private final Vector<StudentRecord> records = new Vector<>();   
+    private final Stack<StudentRecord> undoStack = new Stack<>();   
+    private final Random random = new Random();                      
 
-    // ---- GUI components ----
+  
     private final JTextField nameField = new JTextField(15);
     private final JTextField courseField = new JTextField(15);
     private final JTextField markField = new JTextField(15);
@@ -58,7 +53,7 @@ public class StudentManager extends JFrame implements ActionListener {
         super("Student Records Manager");
         buildGui();
 
-        // Window closing is handled with a WindowAdapter (WindowListener with empty defaults).
+        
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override
@@ -115,9 +110,9 @@ public class StudentManager extends JFrame implements ActionListener {
         }
     }
 
-    // ================= ADD (+ Random, Stack) =================
+   
     private void addRecord() {
-        // commas are the field separator in the file, so they are not allowed inside a field
+        
         String name = nameField.getText().trim().replace(',', ' ');
         String course = courseField.getText().trim().replace(',', ' ');
         String markText = markField.getText().trim();
@@ -139,8 +134,8 @@ public class StudentManager extends JFrame implements ActionListener {
         }
 
         StudentRecord record = new StudentRecord(generateUniqueId(), name, course, mark);
-        records.add(record);            // store in the Vector
-        undoStack.push(record);         // remember it for Undo
+        records.add(record);            
+        undoStack.push(record);        
         nameField.setText("");
         courseField.setText("");
         markField.setText("");
@@ -151,7 +146,7 @@ public class StudentManager extends JFrame implements ActionListener {
     private String generateUniqueId() {
         String id;
         do {
-            id = "S" + (1000 + random.nextInt(9000));    // 1000..9999
+            id = "S" + (1000 + random.nextInt(9000));    
         } while (idExists(id));
         return id;
     }
@@ -165,20 +160,20 @@ public class StudentManager extends JFrame implements ActionListener {
         return false;
     }
 
-    // ================= UNDO (Stack: peek, pop, empty) =================
+  
     private void undoLast() {
         if (undoStack.empty()) {
             showError("Nothing to undo.");
             return;
         }
-        StudentRecord last = undoStack.peek();    // look at the top without removing
-        undoStack.pop();                          // remove it from the stack
-        records.remove(last);                     // remove it from the Vector
+        StudentRecord last = undoStack.peek();    
+        undoStack.pop();                          
+        records.remove(last);                     
         status("Undid " + last.getId() + " (" + last.getName() + ").");
         displayRecords();
     }
 
-    // ================= DISPLAY (Enumeration) =================
+    
     private void displayRecords() {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%-6s | %-18s | %-14s | %6s | %s%n",
@@ -194,7 +189,7 @@ public class StudentManager extends JFrame implements ActionListener {
         status("Displayed " + records.size() + " record(s).");
     }
 
-    // ================= SAVE (character stream + byte stream) =================
+  
     private void saveRecords() {
         StringBuilder all = new StringBuilder();
         Enumeration<StudentRecord> en = records.elements();
@@ -202,7 +197,7 @@ public class StudentManager extends JFrame implements ActionListener {
             all.append(en.nextElement().toCsvLine()).append(System.lineSeparator());
         }
 
-        // 1) character stream: students.txt, one record per line
+       
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(TEXT_FILE))) {
             writer.write(all.toString());
         } catch (IOException ex) {
@@ -210,7 +205,7 @@ public class StudentManager extends JFrame implements ActionListener {
             return;
         }
 
-        // 2) byte stream: students.bak, a backup copy of the same data
+      
         try (FileOutputStream backup = new FileOutputStream(BACKUP_FILE)) {
             backup.write(all.toString().getBytes(StandardCharsets.UTF_8));
         } catch (IOException ex) {
@@ -220,7 +215,7 @@ public class StudentManager extends JFrame implements ActionListener {
         status("Saved " + records.size() + " record(s) to " + TEXT_FILE + " and " + BACKUP_FILE + ".");
     }
 
-    // ================= LOAD (FileReader + StringTokenizer) =================
+   
     private void loadRecords() {
         Vector<StudentRecord> loaded = new Vector<>();
         int skipped = 0;
@@ -232,7 +227,7 @@ public class StudentManager extends JFrame implements ActionListener {
                     continue;
                 }
                 StringTokenizer st = new StringTokenizer(line, ",");
-                if (st.countTokens() != 5) {          // id,name,course,mark,addedAt
+                if (st.countTokens() != 5) {          
                     skipped++;
                     continue;
                 }
@@ -244,7 +239,7 @@ public class StudentManager extends JFrame implements ActionListener {
                 try {
                     loaded.add(new StudentRecord(id, name, course, Double.parseDouble(markText), addedAt));
                 } catch (NumberFormatException ex) {
-                    skipped++;                        // bad mark in the file
+                    skipped++;                        
                 }
             }
         } catch (java.io.FileNotFoundException ex) {
@@ -256,14 +251,13 @@ public class StudentManager extends JFrame implements ActionListener {
         }
 
         records.clear();
-        records.addAll(loaded);       // rebuild the Vector
-        undoStack.clear();            // old undo history no longer matches the data
+        records.addAll(loaded);       
+        undoStack.clear();            
         displayRecords();
         status("Loaded " + records.size() + " record(s)" + (skipped > 0 ? ", skipped " + skipped + " bad line(s)." : "."));
     }
 
-    // ================= CONSOLE SEARCH (Scanner) =================
-    /** Runs in a background thread: type a name in the console to search. */
+   
     private void consoleSearch() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Console search ready. Type a student name to search, or 'exit' to stop.");
@@ -297,7 +291,7 @@ public class StudentManager extends JFrame implements ActionListener {
         System.out.println("Console search stopped.");
     }
 
-    // ================= helpers =================
+ 
     private void status(String message) {
         statusLabel.setText(message);
     }
