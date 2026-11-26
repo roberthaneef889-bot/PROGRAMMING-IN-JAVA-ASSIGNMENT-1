@@ -6,8 +6,8 @@ Programme: BSc | Submission deadline: Friday, 27 November 2026
 
 | | |
 |---|---|
-| **Full name** | `[YOUR FULL NAME]` |
-| **Registration number** | `[YOUR REGISTRATION NUMBER]` |
+| **Full name** | `[Haneef Robert Jussah]` |
+| **Registration number** | `[25311351010]` |
 
 ## Repository layout
 
