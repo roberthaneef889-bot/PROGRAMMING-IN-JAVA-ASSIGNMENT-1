@@ -79,7 +79,7 @@ public class StudentManager extends JFrame implements ActionListener {
         for (String label : new String[] {"Add", "Save", "Load", "Display", "Undo"}) {
             JButton button = new JButton(label);
             button.setActionCommand(label);
-            button.addActionListener(this);          // every button -> this ActionListener
+            button.addActionListener(this);          
             buttons.add(button);
         }
 
@@ -97,7 +97,7 @@ public class StudentManager extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
     }
 
-    // ================= EVENT HANDLING =================
+  
     @Override
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
@@ -306,7 +306,7 @@ public class StudentManager extends JFrame implements ActionListener {
         SwingUtilities.invokeLater(() -> app.setVisible(true));
 
         Thread console = new Thread(app::consoleSearch, "ConsoleSearch");
-        console.setDaemon(true);      // does not keep the JVM alive after the window closes
+        console.setDaemon(true);      
         console.start();
     }
 }
